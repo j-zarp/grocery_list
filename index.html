@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
    <head>
@@ -258,6 +259,8 @@
            xmlhttp.send();
            // erase input string from the user field
            document.getElementById("myInput").value = "";
+           // stop livesearch by triggering keyup()
+           $("#myInput").keyup();
          }
          
          function displayNewElement(inputValue, priority) {

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
    <head>
@@ -150,11 +149,11 @@
          $(document).ready(function(){
            $("#myInput").keyup(function(){
                  // Retrieve the input field text
-                 var filter = $(this).val();
+                 var filter = normalizeStr($(this).val());
                  // Loop through the comment list
                  $("li").each(function(){
                      // If the list item does not contain the text phrase fade it out
-                     if ($(this).text().search(new RegExp(filter, "i")) < 0) {
+                     if (normalizeStr($(this).text()).search(new RegExp(filter, "i")) < 0) {
                         $(this).fadeOut();
                       } else {
                         // Show the list item if the phrase matches

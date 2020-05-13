@@ -8,8 +8,8 @@ if (!$con) {
 }
 
 //prevent SQL injections
-$stmt = $con->prepare('INSERT INTO groceries (name, priority) VALUES (?, 0)');
-$stmt->bind_param('s',$item);
+$stmt = $con->prepare('INSERT INTO groceries (name, priority) VALUES (?, ?)');
+$stmt->bind_param('si',$item, $p);
 $success = $stmt->execute();
 if (!$success) {
   echo "Error: " . $con->error;

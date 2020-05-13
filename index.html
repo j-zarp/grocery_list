@@ -144,13 +144,13 @@
            showGroceries();
            timeoutWrapper();
          }
-         
+
          // livesearch when entering new item to the list
          $(document).ready(function(){
            $("#myInput").keyup(function(){
                  // Retrieve the input field text
                  var filter = normalizeStr($(this).val());
-                 // Loop through the items list
+                 // Loop through the item list
                  $("li").each(function(){
                      // If the list item does not contain the text phrase fade it out
                      if (normalizeStr($(this).text()).search(new RegExp(filter, "i")) < 0) {
@@ -162,7 +162,7 @@
                  });
                });
          });
-         
+
          // add event when pushing enter key in the input form
          var input = document.getElementById("myInput");
          input.addEventListener("keyup", function(event) {
@@ -171,7 +171,7 @@
             document.getElementById("myBtn").click();
           }
          });
-         
+
          // Create a "close" button and append it to each list item
          var myNodelist = document.getElementsByTagName("LI");
          var i;
@@ -182,7 +182,7 @@
            span.appendChild(txt);
            myNodelist[i].appendChild(span);
          }
-         
+
          // Click on a close button to hide the current list item
          var close = document.getElementsByClassName("close");
          var i;
@@ -192,7 +192,7 @@
              div.style.display = "none";
            }
          }
-         
+
          // Add a "checked" symbol when clicking on a list item
          var list = document.querySelector('ul');
          list.addEventListener('click', function(ev) {
@@ -200,7 +200,7 @@
              alterItem(ev.target.textContent.slice(0,-1));
            }
          }, false);
-         
+
          // check for change every second and reload page if necessary
          var statOld = "";
          function timeoutWrapper() {
@@ -219,8 +219,8 @@
              timeoutWrapper();
            });
          }
-         
-         
+
+
          // Create a new list item when clicking on the "Add" button
          function newElement() {
            var inputValue = document.getElementById("myInput").value;
@@ -254,14 +254,14 @@
              }
            };
            var safeInput = encodeURIComponent(inputValue);
-           xmlhttp.open("GET","add_grocery.php?item="+safeInput+"&p=0",true);
+           xmlhttp.open("GET","add_grocery.php?item="+safeInput+"&p=1",true);
            xmlhttp.send();
            // erase input string from the user field
            document.getElementById("myInput").value = "";
            // stop livesearch by triggering keyup()
            $("#myInput").keyup();
          }
-         
+
          function displayNewElement(inputValue, priority) {
            var li = document.createElement("li");
            var t = document.createTextNode(inputValue);
@@ -270,16 +270,16 @@
              return;
            }
            document.getElementById("myUL").appendChild(li);
-         
+
            var span = document.createElement("SPAN");
            var txt = document.createTextNode("\u00D7");
            span.className = "close";
            span.appendChild(txt);
            li.appendChild(span);
-         
+
            for (i = 0; i < close.length; i++) {
              close[i].onclick = function() {
-               deleteItem(this.parentElement.textContent.slice(0,-1)); 
+               deleteItem(this.parentElement.textContent.slice(0,-1));
              };
            }
            // strike new element if it has been checked
@@ -287,7 +287,7 @@
              li.classList.toggle('checked')
            }
          }
-         
+
          function deleteItem(item) {
            // remove item from DB
            if (window.XMLHttpRequest) {
@@ -306,7 +306,7 @@
            xmlhttp.open("GET","remove_grocery.php?item="+safeItem,true);
            xmlhttp.send();
          }
-         
+
          function alterItem(item) {
            // remove item from DB
            if (window.XMLHttpRequest) {
@@ -325,11 +325,11 @@
            xmlhttp.open("GET","alter_grocery.php?item="+safeItem,true);
            xmlhttp.send();
          }
-         
+
          function normalizeStr(str) {
            return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\\/g, '');
          }
-         
+
          function showGroceries() {
            if (window.XMLHttpRequest) {
              // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -357,7 +357,7 @@
                      found = true;
                      indicator[k] = true;
                      // change checked state if needed
-                     if ((el.priority < 0 & cname !== 'checked') 
+                     if ((el.priority < 0 & cname !== 'checked')
                        | (el.priority >= 0 & cname === 'checked')){
                        existing[k].parentElement.classList.toggle('checked');
                    }
@@ -384,7 +384,7 @@
            xmlhttp.open("GET","get_groceries.php",true);
            xmlhttp.send();
          }
-         
+
          function touchIndicatorFile(){
            if (window.XMLHttpRequest) {
              // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -399,4 +399,3 @@
       </script>
    </body>
 </html>
-

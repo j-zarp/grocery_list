@@ -150,7 +150,7 @@
            $("#myInput").keyup(function(){
                  // Retrieve the input field text
                  var filter = normalizeStr($(this).val());
-                 // Loop through the comment list
+                 // Loop through the items list
                  $("li").each(function(){
                      // If the list item does not contain the text phrase fade it out
                      if (normalizeStr($(this).text()).search(new RegExp(filter, "i")) < 0) {
@@ -327,7 +327,7 @@
          }
          
          function normalizeStr(str) {
-           return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+           return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\\/g, '');
          }
          
          function showGroceries() {
@@ -374,10 +374,8 @@
                  var item = existing[k].parentElement.textContent.slice(0,-1);
                  // delete items that did not appear in the DB
                  if(!indicator[k] & typeof indicator[k] !== 'undefined'){
-                   //console.log(item+" has to be erased "+indicator[k]); // for debug
-                   // do not display this item anymore
-                   var div = existing[k].parentElement;
-                   div.style.display = "none";
+                   // remove element from the list (li list)
+                   existing[k].parentElement.remove();
                  }
                }
                //console.log(indicator); // for debug
@@ -401,3 +399,4 @@
       </script>
    </body>
 </html>
+

@@ -6,10 +6,14 @@ if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }
 
-mysqli_select_db($con, "groceries_db");
-$sql = "DELETE FROM groceries WHERE name = '" . $item . "'";
-$result = mysqli_query($con,$sql);
-echo $result;
+//prevent SQL injections
+$stmt = $con->prepare('DELETE FROM groceries WHERE name = ?');
+$stmt->bind_param('s',$item);
+$success = $stmt->execute();
+if (!$success) {
+  echo "Error: " . $con->error;
+}
+$stmt->close();
 
 mysqli_close($con);
 ?>

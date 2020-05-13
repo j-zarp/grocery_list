@@ -6,21 +6,25 @@ if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }
 
-mysqli_select_db($con,"groceries_db");
+//prevent SQL injections
+if ($stmt = mysqli_prepare($con,"SELECT priority FROM groceries WHERE name = ?")) {
+  mysqli_stmt_bind_param($stmt, "s", $item);
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_bind_result($stmt, $p_old);
+  mysqli_stmt_fetch($stmt);
+  mysqli_stmt_close($stmt);
 
-$sql = "SELECT priority FROM groceries WHERE name = '" . $item . "'";
-$result = mysqli_query($con,$sql);
-$row = mysqli_fetch_assoc($result);
-
-$p_old = intval($row["priority"]);
-$p_new = 0;
-if ($p_old == 0) {
-	$p_new = -1;
+  $p_new = 0;
+  if ($p_old == 0) {
+  	$p_new = -1;
+  }
+  
+  if ($stmt = mysqli_prepare($con,"UPDATE groceries SET priority = ? WHERE name = ?")) {
+    mysqli_stmt_bind_param($stmt, "is", $p_new, $item);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+  }
 }
-
-$sql = "UPDATE groceries SET priority = " . $p_new . " WHERE name = '" . $item . "'";
-$result = mysqli_query($con,$sql);
-echo $result;
 
 mysqli_close($con);
 ?>

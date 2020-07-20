@@ -78,11 +78,31 @@
          background-color: #009900; /*#f44336; red*/
          color: white;
          }
+         /* Style the Clear All button */
+         .button {
+         background-color: white;
+         color: black;
+         border: 2px solid #009900;
+         padding: 10px 40px;
+         font-family: Veranda, sans-serif;
+         text-align: center;
+         display: inline-block;
+         font-size: 16px;
+         cursor: pointer;
+         border-radius: 8px;
+         margin: 34px 2px 10px 2px;
+         transition-duration: 0.2s;
+         }
+         .button:hover {
+         background-color: #009900;
+         color: white;
+         }
          /* Style the back to homepage link */
          .backlink {
          padding: 10px 40px;
          font-family: Veranda, sans-serif;
          text-align: center;
+         position: relative;
          }
          /* Style the header */
          .header {
@@ -135,6 +155,9 @@
       <ul id="myUL"></ul>
       <!-- invisible -->
       <div id="stat" style="color:#FFFFFF"></div>
+      <div id="clearDIV" align='center'>
+         <button onclick="deleteCheckedItems()" id="cleanBtn" class="button">Clear checked items</button>
+      </div>
       <div class='backlink'>
          <p><a href="https://raspberry.pi">Back to homepage</a></p>
       </div>
@@ -144,7 +167,7 @@
            showGroceries();
            timeoutWrapper();
          }
-
+         
          // livesearch when entering new item to the list
          $(document).ready(function(){
            $("#myInput").keyup(function(){
@@ -162,7 +185,7 @@
                  });
                });
          });
-
+         
          // add event when pushing enter key in the input form
          var input = document.getElementById("myInput");
          input.addEventListener("keyup", function(event) {
@@ -171,7 +194,7 @@
             document.getElementById("myBtn").click();
           }
          });
-
+         
          // Create a "close" button and append it to each list item
          var myNodelist = document.getElementsByTagName("LI");
          var i;
@@ -182,7 +205,7 @@
            span.appendChild(txt);
            myNodelist[i].appendChild(span);
          }
-
+         
          // Click on a close button to hide the current list item
          var close = document.getElementsByClassName("close");
          var i;
@@ -192,7 +215,7 @@
              div.style.display = "none";
            }
          }
-
+         
          // Add a "checked" symbol when clicking on a list item
          var list = document.querySelector('ul');
          list.addEventListener('click', function(ev) {
@@ -200,7 +223,7 @@
              alterItem(ev.target.textContent.slice(0,-1));
            }
          }, false);
-
+         
          // check for change every second and reload page if necessary
          var statOld = "";
          function timeoutWrapper() {
@@ -208,27 +231,26 @@
          }
          function check_for_change(){
            $("#stat").load("dir_stat.php",function(){
-             var stat_new = $("#stat").html();
+             var statNew = $("#stat").html();
              if(statOld === ""){
-               statOld = stat_new;
+               statOld = statNew;
              }
-             if(statOld !== stat_new){
-               statOld = stat_new;
+             if(statOld !== statNew){
+               statOld = statNew;
                showGroceries();
              }
              timeoutWrapper();
            });
          }
-
-
+         
          // Create a new list item when clicking on the "Add" button
          function newElement() {
            var inputValue = document.getElementById("myInput").value;
-           var existing = document.getElementsByClassName("close");
+           var existing = document.getElementById("myUL").children;
            var found = false;
            var k;
            for (k = 0; k < existing.length; k++){
-             var item = existing[k].parentElement.textContent.slice(0,-1);
+             var item = existing[k].textContent.slice(0,-1);
              if(normalizeStr(item) === normalizeStr(inputValue)) {
                found = true;
                break;
@@ -261,7 +283,7 @@
            // stop livesearch by triggering keyup()
            $("#myInput").keyup();
          }
-
+         
          function displayNewElement(inputValue, priority) {
            var li = document.createElement("li");
            var t = document.createTextNode(inputValue);
@@ -270,25 +292,25 @@
              return;
            }
            document.getElementById("myUL").appendChild(li);
-
+         
            var span = document.createElement("SPAN");
            var txt = document.createTextNode("\u00D7");
            span.className = "close";
            span.appendChild(txt);
            li.appendChild(span);
-
-           for (i = 0; i < close.length; i++) {
-             close[i].onclick = function() {
-               deleteItem(this.parentElement.textContent.slice(0,-1));
-             };
-           }
+         
+           span.onclick = function() { deleteItem(this.parentElement); };
            // strike new element if it has been checked
            if (priority < 0){
              li.classList.toggle('checked')
            }
          }
-
+         
          function deleteItem(item) {
+           // item can be removed only if it is checked
+           if(item.className !== "checked") {
+             return;
+           }
            // remove item from DB
            if (window.XMLHttpRequest) {
              // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -302,11 +324,31 @@
                touchIndicatorFile();
              }
            };
-           var safeItem = encodeURIComponent(item);
+           var safeItem = encodeURIComponent(item.textContent.slice(0,-1));
            xmlhttp.open("GET","remove_grocery.php?item="+safeItem,true);
            xmlhttp.send();
          }
-
+         
+         function deleteCheckedItems() {
+           if(document.getElementsByClassName("checked").length == 0) {
+             return;
+           }
+           if (window.XMLHttpRequest) {
+             // code for IE7+, Firefox, Chrome, Opera, Safari
+             xmlhttp = new XMLHttpRequest();
+           } else {
+             // code for IE6, IE5
+             xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+           }
+           xmlhttp.onreadystatechange = function() {
+             if (this.readyState == 4 && this.status == 200) {
+               touchIndicatorFile();
+             }
+           };
+           xmlhttp.open("GET","remove_grocery.php?how=checked",true);
+           xmlhttp.send();
+         }
+         
          function alterItem(item) {
            // remove item from DB
            if (window.XMLHttpRequest) {
@@ -325,11 +367,11 @@
            xmlhttp.open("GET","alter_grocery.php?item="+safeItem,true);
            xmlhttp.send();
          }
-
+         
          function normalizeStr(str) {
            return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\\/g, '');
          }
-
+         
          function showGroceries() {
            if (window.XMLHttpRequest) {
              // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -341,7 +383,7 @@
            xmlhttp.onreadystatechange = function() {
              if (this.readyState == 4 && this.status == 200) {
                var response = JSON.parse(this.responseText);
-               var existing = document.getElementsByClassName("close");
+               var existing = document.getElementById("myUL").children;
                var k;
                var indicator = new Array(existing.length);
                // initialization
@@ -351,15 +393,15 @@
                response.content.forEach(el => {
                  var found = false
                  for (k = 0; k < existing.length; k++){
-                   var item = existing[k].parentElement.textContent.slice(0,-1);
-                   var cname = existing[k].parentElement.className;
+                   var item = existing[k].textContent.slice(0,-1);
+                   var cname = existing[k].className;
                    if(normalizeStr(item) === normalizeStr(el.name)) {
                      found = true;
                      indicator[k] = true;
                      // change checked state if needed
-                     if ((el.priority < 0 & cname !== 'checked')
+                     if ((el.priority < 0 & cname !== 'checked') 
                        | (el.priority >= 0 & cname === 'checked')){
-                       existing[k].parentElement.classList.toggle('checked');
+                       existing[k].classList.toggle('checked');
                    }
                    break;
                  }
@@ -370,12 +412,15 @@
                  }
                });
                // remove deleted items (that do not appear in the DB anymore)
-               for (k = 0; k < existing.length; k++){
-                 var item = existing[k].parentElement.textContent.slice(0,-1);
+               // /!\ "existing" variable changes dynamically as items are removed
+               var len = existing.length;
+               var offset = 0;
+               for (k = 0; k < len; k++){
                  // delete items that did not appear in the DB
                  if(!indicator[k] & typeof indicator[k] !== 'undefined'){
                    // remove element from the list (li list)
-                   existing[k].parentElement.remove();
+                   existing[k-offset].remove();
+                   offset += 1;
                  }
                }
                //console.log(indicator); // for debug
@@ -384,7 +429,7 @@
            xmlhttp.open("GET","get_groceries.php",true);
            xmlhttp.send();
          }
-
+         
          function touchIndicatorFile(){
            if (window.XMLHttpRequest) {
              // code for IE7+, Firefox, Chrome, Opera, Safari
